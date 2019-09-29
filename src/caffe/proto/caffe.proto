@@ -421,6 +421,9 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+  // OpenPose: new layer
+  optional OPTransformationParameter op_transform_param = 149;
+  // OpenPose: end new layer
 }
 
 // Message that stores parameters used to apply transformation
@@ -445,6 +448,70 @@ message TransformationParameter {
   // Force the decoded image to have 1 color channels.
   optional bool force_gray = 7 [default = false];
 }
+
+// OpenPose: new parameter
+// Message that stores parameters used to apply transformation
+// to the OPData layer's data
+message OPTransformationParameter {
+  // // For data pre-processing, we can do simple scaling and subtracting the
+  // // data mean, if provided. Note that the mean subtraction is always carried
+  // // out before scaling.
+  // optional float scale = 1 [default = 1];
+  // // Specify if we want to randomly mirror data.
+  // optional bool mirror = 2 [default = false];
+  // // Specify if we would like to randomly crop an image.
+  // optional uint32 crop_size = 3 [default = 0];
+  // // mean_file and mean_value cannot be specified at the same time
+  // optional string mean_file = 4;
+  // // if specified can be repeated once (would substract it from all the channels)
+  // // or can be repeated the same number of times as channels
+  // // (would subtract them from the corresponding channel)
+  // repeated float mean_value = 5;
+  // // Force the decoded image to have 3 color channels.
+  // optional bool force_color = 6 [default = false];
+  // // Force the decoded image to have 1 color channels.
+  // optional bool force_gray = 7 [default = false];
+  // OpenPose parameters
+  optional uint32 stride = 8 [default = 4];
+  // Flipping
+  optional float flip_prob = 9 [default = 0.5];
+  // Rotation
+  optional string max_degree_rotations = 10 [default = "45.0"];
+  // Cropping
+  optional uint32 crop_size_x = 12 [default = 368];
+  optional uint32 crop_size_y = 13 [default = 368];
+  optional float center_perterb_max = 14 [default = 10.0];
+  optional float center_swap_prob = 15 [default = 0.0];
+  // Scaling
+  optional float scale_prob = 16 [default = 0.5];
+  optional string scale_mins = 17 [default = "0.9"];
+  optional string scale_maxs = 18 [default = "1.1"];
+  optional float target_dist = 19 [default = 1.0];
+  // Oclussion
+  optional string number_max_occlusions = 20 [default = "0"];
+  // Label generation
+  optional string sigmas = 21 [default = "7.0"];
+  // Model information
+  optional string models = 22 [default = "COCO"];
+  optional string sources = 23 [default = ""];
+  optional string probabilities = 24 [default = "1"];
+  optional string source_background = 25 [default = ""];
+  optional float prob_only_background = 26 [default = 0.0];
+  optional string media_directory = 27 [default = ""]; // Specify images folder
+  // 0 for x/256 - 0.5 (VGG); 1 for x-channel average (ResNet); 2 for 1-channel * scale (DenseNet)
+  optional uint32 normalization = 28 [default = 0];
+  // Force the decoded image to have 1 color channels.
+  optional bool add_distance = 29 [default = false];
+  // Video
+  optional string input_type = 30 [default = ""];
+  optional uint32 frame_size = 31 [default = 0];
+  optional uint32 taf_topology = 32 [default = 0];
+  // // CLAHE
+  // optional float clahe_tile_size = 30 [default = 8.0];
+  // optional float clahe_clip_limit = 31 [default = 4.0];
+  // optional bool do_clahe = 32 [default = false];
+}
+// OpenPose: end new parameter
 
 // Message that stores parameters shared by loss layers
 message LossParameter {
@@ -640,6 +707,12 @@ message ConvolutionParameter {
   // implementation; for input blobs with num_axes != 2, this option is
   // ignored and the ND implementation will be used.)
   optional bool force_nd_im2col = 17 [default = false];
+
+  // Binary added
+  // Whether to use binary conv layer
+  // 0 not binary, 1 binary weights fake XNOR style, 2 binary weights real XNOR style, 3 full binary (weights and input activations)
+  optional int32 binary = 19 [default = 0];
+  // Binary added ended
 }
 
 message CropParameter {
@@ -1447,3 +1520,9 @@ message PReLUParameter {
   // Whether or not slope parameters are shared across channels.
   optional bool channel_shared = 2 [default = false];
 }
+
+// Binary added
+// Message that stores parameters used by ReLULayer
+message BinaryActivationParameter {
+}
+// Binary added ended

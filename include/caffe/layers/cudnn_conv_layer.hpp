@@ -30,7 +30,8 @@ template <typename Dtype>
 class CuDNNConvolutionLayer : public ConvolutionLayer<Dtype> {
  public:
   explicit CuDNNConvolutionLayer(const LayerParameter& param)
-      : ConvolutionLayer<Dtype>(param), handles_setup_(false) {}
+      : ConvolutionLayer<Dtype>(param), handles_setup_(false),
+        weight_initialized_{false} {}// Binary added: weight_initialized_
   virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
@@ -64,6 +65,28 @@ class CuDNNConvolutionLayer : public ConvolutionLayer<Dtype> {
   size_t workspaceSizeInBytes;  // size of underlying storage
   void *workspaceData;  // underlying storage
   void **workspace;  // aliases into workspaceData
+
+  // Binary net added
+  bool weight_initialized_;
+  std::unique_ptr<Blob<Dtype>> weight_binary_;
+  std::unique_ptr<Blob<Dtype>> bottom_binary_;
+  std::unique_ptr<Blob<Dtype>> matrix_A_;
+  std::unique_ptr<Blob<Dtype>> matrix_one_over_chw;
+  std::unique_ptr<Blob<Dtype>> matrix_K_;
+  cudnnHandle_t matrix_K_handle_;
+  cudaStream_t matrix_K_stream_;
+  cudnnTensorDescriptor_t matrix_A_desc_;
+  cudnnFilterDescriptor_t matrix_one_filter_desc_;
+  cudnnTensorDescriptor_t matrix_K_desc_;
+  cudnnConvolutionDescriptor_t matrix_AK_conv_descs_;
+  cudnnConvolutionFwdAlgo_t matrix_AK_fwd_algo_;
+  size_t matrix_AK_workspace_fwd_sizes_;
+  void normalizeWeights();
+  void approximateInputGpu(Blob<Dtype>* bottom_binary_, Blob<Dtype>* matrix_A_,
+                           Blob<Dtype>* matrix_K_, const Blob<Dtype>* const matrix_one_over_chw,
+                           const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top,
+                           const int num, const int binaryOption) const;
+  // Binary net end
 };
 #endif
 

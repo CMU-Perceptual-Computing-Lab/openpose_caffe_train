@@ -53,7 +53,7 @@ class Blob {
   void ReshapeLike(const Blob& other);
   inline string shape_string() const {
     ostringstream stream;
-    for (int i = 0; i < shape_.size(); ++i) {
+    for (unsigned int i = 0u; i < shape_.size(); ++i) {
       stream << shape_[i] << " ";
     }
     stream << "(" << count_ << ")";
@@ -103,6 +103,23 @@ class Blob {
   inline int count(int start_axis) const {
     return count(start_axis, num_axes());
   }
+
+  // OpenPose: added
+  /**
+   * @brief Compute strides
+   *
+   */
+  inline std::vector<int> stride() const {
+    std::vector<int> strides(this->shape().size());
+    if (!strides.empty())
+    {
+      strides.back() = sizeof(Dtype);
+      for (auto i = (int)strides.size()-2 ; i > -1 ; i--)
+        strides[i] = strides[i+1] * this->shape()[i+1];
+    }
+    return strides;
+  }
+  // OpenPose: added end
 
   /**
    * @brief Returns the 'canonical' version of a (usually) user-specified axis,
@@ -216,6 +233,7 @@ class Blob {
     return diff_;
   }
 
+  Dtype* pseudo_cpu_data() const;  // OpenPose: added
   const Dtype* cpu_data() const;
   void set_cpu_data(Dtype* data);
   const int* gpu_shape() const;

@@ -54,6 +54,14 @@ void CuDNNConvolutionLayer<Dtype>::LayerSetUp(
     CUDNN_CHECK(cudnnSetStream(handle_[g], stream_[g]));
     workspace[g] = NULL;
   }
+  // Binary added
+  if (this->layer_param_.convolution_param().binary() > 1)
+  {
+    CUDA_CHECK(cudaStreamCreate(&matrix_K_stream_));
+    CUDNN_CHECK(cudnnCreate(&matrix_K_handle_));
+    CUDNN_CHECK(cudnnSetStream(matrix_K_handle_, matrix_K_stream_));
+  }
+  // Binary added end
 
   // Set the indexing parameters.
   bias_offset_ = (this->num_output_ / this->group_);
@@ -65,6 +73,13 @@ void CuDNNConvolutionLayer<Dtype>::LayerSetUp(
   cudnn::createFilterDesc<Dtype>(&filter_desc_,
       this->num_output_ / this->group_, this->channels_ / this->group_,
       kernel_h, kernel_w);
+  // Binary added
+  if (this->layer_param_.convolution_param().binary() > 1)
+  {
+    cudnn::createFilterDesc<Dtype>(&matrix_one_filter_desc_,
+        1, 1, kernel_h, kernel_w);
+  }
+  // Binary added end
 
   // Create tensor descriptor(s) for data and corresponding convolution(s).
   for (int i = 0; i < bottom.size(); i++) {
@@ -78,6 +93,14 @@ void CuDNNConvolutionLayer<Dtype>::LayerSetUp(
     cudnn::createConvolutionDesc<Dtype>(&conv_desc);
     conv_descs_.push_back(conv_desc);
   }
+  // Binary added
+  if (this->layer_param_.convolution_param().binary() > 1)
+  {
+    cudnn::createTensor4dDesc<Dtype>(&matrix_A_desc_);
+    cudnn::createConvolutionDesc<Dtype>(&matrix_AK_conv_descs_);
+    cudnn::createTensor4dDesc<Dtype>(&matrix_K_desc_);
+  }
+  // Binary added end
 
   // Tensor descriptor for bias.
   if (this->bias_term_) {
@@ -167,6 +190,64 @@ void CuDNNConvolutionLayer<Dtype>::Reshape(
           filter_desc_, top_descs_[i], conv_descs_[i], bottom_descs_[i],
           bwd_data_algo_[i], &workspace_bwd_data_sizes_[i]) );
   }
+  // Binary added
+  if (this->layer_param_.convolution_param().binary() > 1)
+  {
+    cudnn::setTensor4dDesc<Dtype>(&matrix_A_desc_,
+        this->num_,
+        1, height, width,
+        height * width,
+        height * width, width, 1);
+    cudnn::setTensor4dDesc<Dtype>(&matrix_K_desc_,
+        this->num_,
+        1, height_out, width_out,
+        this->out_spatial_dim_,
+        this->out_spatial_dim_, width_out, 1);
+    cudnn::setConvolutionDesc<Dtype>(&matrix_AK_conv_descs_, matrix_A_desc_,
+        matrix_one_filter_desc_, pad_h, pad_w,
+        stride_h, stride_w);
+
+    // choose forward and backward algorithms + workspace(s)
+    CUDNN_CHECK(cudnnGetConvolutionForwardAlgorithm(matrix_K_handle_,
+      matrix_A_desc_,
+      matrix_one_filter_desc_,
+      matrix_AK_conv_descs_,
+      matrix_K_desc_,
+      CUDNN_CONVOLUTION_FWD_SPECIFY_WORKSPACE_LIMIT,
+      workspace_limit_bytes,
+      &matrix_AK_fwd_algo_));
+
+    CUDNN_CHECK(cudnnGetConvolutionForwardWorkspaceSize(matrix_K_handle_,
+      matrix_A_desc_,
+      matrix_one_filter_desc_,
+      matrix_AK_conv_descs_,
+      matrix_K_desc_,
+      matrix_AK_fwd_algo_,
+      &(matrix_AK_workspace_fwd_sizes_)));
+
+    // // choose backward algorithm for filter
+    // CUDNN_CHECK(cudnnGetConvolutionBackwardFilterAlgorithm(matrix_K_handle_,
+    //       matrix_A_desc_, matrix_K_desc_, matrix_AK_conv_descs_, matrix_one_filter_desc_,
+    //       CUDNN_CONVOLUTION_BWD_FILTER_SPECIFY_WORKSPACE_LIMIT,
+    //       workspace_limit_bytes, &bwd_filter_algo_[i]) );
+
+    // // get workspace for backwards filter algorithm
+    // CUDNN_CHECK(cudnnGetConvolutionBackwardFilterWorkspaceSize(matrix_K_handle_,
+    //       matrix_A_desc_, matrix_K_desc_, matrix_AK_conv_descs_, matrix_one_filter_desc_,
+    //       bwd_filter_algo_[i], &workspace_bwd_filter_sizes_[i]));
+
+    // // choose backward algo for data
+    // CUDNN_CHECK(cudnnGetConvolutionBackwardDataAlgorithm(matrix_K_handle_,
+    //       matrix_one_filter_desc_, matrix_K_desc_, matrix_AK_conv_descs_, matrix_A_desc_,
+    //       CUDNN_CONVOLUTION_BWD_DATA_SPECIFY_WORKSPACE_LIMIT,
+    //     workspace_limit_bytes, &bwd_data_algo_[i]));
+
+    // // get workspace size
+    // CUDNN_CHECK(cudnnGetConvolutionBackwardDataWorkspaceSize(matrix_K_handle_,
+    //       matrix_one_filter_desc_, matrix_K_desc_, matrix_AK_conv_descs_, matrix_A_desc_,
+    //       bwd_data_algo_[i], &workspace_bwd_data_sizes_[i]) );
+  }
+  // Binary added end
 
   // reduce over all workspace sizes to get a maximum to allocate / reallocate
   size_t total_workspace_fwd = 0;
@@ -250,11 +331,25 @@ CuDNNConvolutionLayer<Dtype>::~CuDNNConvolutionLayer() {
     cudaStreamDestroy(stream_[g]);
     cudnnDestroy(handle_[g]);
   }
+  // Binary added
+  if (this->layer_param_.convolution_param().binary() > 1)
+  {
+    cudaStreamDestroy(matrix_K_stream_);
+    cudnnDestroy(matrix_K_handle_);
+  }
+  // Binary added end
 
   cudaFree(workspaceData);
   delete [] workspace;
   delete [] stream_;
   delete [] handle_;
+  // Binary added
+  // if (this->layer_param_.convolution_param().binary() > 1)
+  // {
+  //   delete [] matrix_K_stream_; // It is not a ptr
+  //   delete [] matrix_K_handle_; // It is not a ptr
+  // }
+  // Binary added end
   delete [] fwd_algo_;
   delete [] bwd_filter_algo_;
   delete [] bwd_data_algo_;
@@ -262,6 +357,56 @@ CuDNNConvolutionLayer<Dtype>::~CuDNNConvolutionLayer() {
   delete [] workspace_bwd_data_sizes_;
   delete [] workspace_bwd_filter_sizes_;
 }
+
+// Binary added
+template <typename Dtype>
+void CuDNNConvolutionLayer<Dtype>::normalizeWeights()
+{
+  // Data to weightReal
+  auto* weightBinaryData = weight_binary_->mutable_cpu_data();
+  auto* weightRealData = this->blobs_[0]->mutable_cpu_data();
+  // Real to binary data
+  // Channel area = volume from axis 2 to final (num, channel, h, w)
+  // const auto channelArea = weight_binary_->count(1);
+  // const auto imageArea = weight_binary_->count(2);
+  // for (auto num = 0 ; num < weight_binary_->shape()[0] ; num++)
+  // {
+  //   const auto offsetNum = num*channelArea;
+  //   for (auto channel = 0 ; channel < weight_binary_->shape()[1] ; channel++)
+  //   {
+  //     const auto offset = offsetNum + channel * imageArea;
+
+  //     // // XNOR-style
+  //     // // L1 norm
+  //     // auto l1Norm = Dtype(0);
+  //     // for (auto i = 0 ; i < imageArea ; i++)
+  //     // {
+  //     //   // truncate to +-1
+  //     //   weightRealData[offset+i] = std::max(-Dtype(1), std::min(Dtype(1), weightRealData[offset+i]));
+  //     //   // l1Norm
+  //     //   l1Norm += (weightRealData[offset+i] < 0
+  //     //     ? -weightRealData[offset+i] : weightRealData[offset+i]);
+  //     // }
+  //     // const auto sum = l1Norm / imageArea;
+  //     // for (auto i = 0 ; i < imageArea ; i++)
+  //     //   weightBinaryData[offset+i] = (weightRealData[offset+i] < 0 ? -sum : sum);
+
+  //     // Old binary net style
+  //     // truncate to +-1
+  //     for (auto i = 0 ; i < imageArea ; i++)
+  //       weightRealData[offset+i] = std::max(-Dtype(1), std::min(Dtype(1), weightRealData[offset+i]));
+  //     // Binary approximation
+  //     for (auto i = 0 ; i < imageArea ; i++)
+  //       weightBinaryData[offset+i] = (weightRealData[offset+i] < 0 ? -Dtype(1) : Dtype(1));
+  //   }
+  // }
+  for (auto i = 0 ; i < this->blobs_[0]->count() ; i++)
+  {
+    weightRealData[i] = std::max(-Dtype(1), std::min(Dtype(1), weightRealData[i]));
+    weightBinaryData[i] = (weightRealData[i] < 0 ? -Dtype(1) : Dtype(1));
+  }
+}
+// Binary added ended
 
 INSTANTIATE_CLASS(CuDNNConvolutionLayer);
 
