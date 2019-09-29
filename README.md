@@ -1,45 +1,55 @@
-# Caffe
+# OpenPose Caffe Training
 
-[![Build Status](https://travis-ci.org/BVLC/caffe.svg?branch=master)](https://travis-ci.org/BVLC/caffe)
-[![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)
+<div align="center">
+    <img src=".github/Logo_main_black.png", width="300">
+</div>
 
-Caffe is a deep learning framework made with expression, speed, and modularity in mind.
-It is developed by Berkeley AI Research ([BAIR](http://bair.berkeley.edu))/The Berkeley Vision and Learning Center (BVLC) and community contributors.
+----------------------------------------------------------------------------------------------------
 
-Check out the [project site](http://caffe.berkeleyvision.org) for all the details like
 
-- [DIY Deep Learning for Vision with Caffe](https://docs.google.com/presentation/d/1UeKXVgRvvxg9OUdh_UiC5G71UMscNPlvArsWER41PsU/edit#slide=id.p)
-- [Tutorial Documentation](http://caffe.berkeleyvision.org/tutorial/)
-- [BAIR reference models](http://caffe.berkeleyvision.org/model_zoo.html) and the [community model zoo](https://github.com/BVLC/caffe/wiki/Model-Zoo)
-- [Installation instructions](http://caffe.berkeleyvision.org/installation.html)
 
-and step-by-step examples.
+## Contents
+1. [Introduction](#introduction)
+2. [Functionality](#functionality)
+3. [Testing](#testing)
+4. [Training](#training)
+5. [Citation](#citation)
+6. [License](#license)
 
-## Custom distributions
 
- - [Intel Caffe](https://github.com/BVLC/caffe/tree/intel) (Optimized for CPU and support for multi-node), in particular Intel® Xeon processors.
-- [OpenCL Caffe](https://github.com/BVLC/caffe/tree/opencl) e.g. for AMD or Intel devices.
-- [Windows Caffe](https://github.com/BVLC/caffe/tree/windows)
 
-## Community
+## Introduction
+[**OpenPose Caffe Training**](https://github.com/CMU-Perceptual-Computing-Lab/openpose_caffe_train) includes the modified Caffe version for training [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose). Check the training repository in [github.com/CMU-Perceptual-Computing-Lab/openpose_train](https://github.com/CMU-Perceptual-Computing-Lab/openpose_train) for all the training details.
 
-[![Join the chat at https://gitter.im/BVLC/caffe](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/BVLC/caffe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+It is **authored by [Gines Hidalgo](https://www.gineshidalgo.com), [Yaadhav Raaj](https://www.raaj.tech), [Haroon Idrees](https://scholar.google.com/citations?user=z74SfHcAAAAJ&hl=en), [Donglai Xiang](https://xiangdonglai.github.io), [Hanbyul Joo](https://jhugestar.github.io), [Tomas Simon](http://www.cs.cmu.edu/~tsimon), and [Yaser Sheikh](http://www.cs.cmu.edu/~yaser)**. It is based on [Realtime Multi-Person Pose Estimation](https://github.com/ZheC/Realtime_Multi-Person_Pose_Estimation). In addition, OpenPose would not be possible without the [CMU Panoptic Studio dataset](http://domedb.perception.cs.cmu.edu). We would also like to thank all the people who helped OpenPose in any way.
 
-Please join the [caffe-users group](https://groups.google.com/forum/#!forum/caffe-users) or [gitter chat](https://gitter.im/BVLC/caffe) to ask questions and talk about methods and models.
-Framework development discussions and thorough bug reports are collected on [Issues](https://github.com/BVLC/caffe/issues).
+This repository and its documentation assumes knowledge of [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose). If you have not used OpenPose yet, you must familiare yourself with it before attempting to follow this documentation.
 
-Happy brewing!
 
-## License and Citation
 
-Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
-The BAIR/BVLC reference models are released for unrestricted use.
+## Citation
+Please cite these papers in your publications if it helps your research (the face keypoint detector was trained using the procedure described in [Simon et al. 2017] for hands):
 
-Please cite Caffe in your publications if it helps your research:
-
-    @article{jia2014caffe,
-      Author = {Jia, Yangqing and Shelhamer, Evan and Donahue, Jeff and Karayev, Sergey and Long, Jonathan and Girshick, Ross and Guadarrama, Sergio and Darrell, Trevor},
-      Journal = {arXiv preprint arXiv:1408.5093},
-      Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
-      Year = {2014}
+    @inproceedings{hidalgo2019singlenetwork,
+      author = {Gines Hidalgo and Yaadhav Raaj and Haroon Idrees and Donglai Xiang and Hanbyul Joo and Tomas Simon and Yaser Sheikh},
+      booktitle = {ICCV},
+      title = {Single-Network Whole-Body Pose Estimation},
+      year = {2019}
     }
+
+    @inproceedings{cao2018openpose,
+      author = {Zhe Cao and Gines Hidalgo and Tomas Simon and Shih-En Wei and Yaser Sheikh},
+      booktitle = {arXiv preprint arXiv:1812.08008},
+      title = {Open{P}ose: realtime multi-person 2{D} pose estimation using {P}art {A}ffinity {F}ields},
+      year = {2018}
+    }
+
+Links to the papers:
+
+- [Single-Network Whole-Body Pose Estimation](https://www.gineshidalgo.com/#section-5c3aab65b18d8)
+- [OpenPose: Realtime Multi-Person 2D Pose Estimation using Part Affinity Fields](https://arxiv.org/abs/1812.08008)
+
+
+
+## License
+OpenPose is freely available for free non-commercial use, and may be redistributed under these conditions. Please, see the [license](LICENSE) for further details. Interested in a commercial license? Check this [FlintBox link](https://flintbox.com/public/project/47343/). For commercial queries, use the `Directly Contact Organization` section from the [FlintBox link](https://flintbox.com/public/project/47343/) and also send a copy of that message to [Yaser Sheikh](http://www.cs.cmu.edu/~yaser/).
