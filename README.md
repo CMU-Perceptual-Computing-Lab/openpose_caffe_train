@@ -46,7 +46,7 @@ Please cite these papers in your publications if it helps your research (the fac
 
 Links to the papers:
 
-- [Single-Network Whole-Body Pose Estimation](https://www.gineshidalgo.com/#section-5c3aab65b18d8)
+- [Single-Network Whole-Body Pose Estimation](https://arxiv.org/abs/1909.13423)
 - [OpenPose: Realtime Multi-Person 2D Pose Estimation using Part Affinity Fields](https://arxiv.org/abs/1812.08008)
 
 
