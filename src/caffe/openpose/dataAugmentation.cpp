@@ -7,6 +7,7 @@
 // #include <opencv2/contrib/contrib.hpp> // cv::CLAHE, CV_Lab2BGR
 #include <caffe/openpose/getLine.hpp>
 #include <caffe/openpose/dataAugmentation.hpp>
+#include "openpose_private/utilities/openCvMultiversionHeaders.hpp"
 
 namespace caffe {
     // Private functions

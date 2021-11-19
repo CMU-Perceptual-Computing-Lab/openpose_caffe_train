@@ -11,6 +11,7 @@
 // OpenPose: added
 #include <atomic>
 #include <chrono>
+#include <numeric> // std::accumulate
 #include <stdexcept>
 #include <thread>
 #include "caffe/util/io.hpp" // DecodeDatum, DecodeDatumNative

@@ -29,6 +29,7 @@
 #include "caffe/util/benchmark.hpp"
 #include "caffe/openpose/getLine.hpp"
 #include "caffe/openpose/oPDataTransformer.hpp"
+#include "openpose_private/utilities/openCvMultiversionHeaders.hpp"
 // OpenPose: added end
 
 namespace caffe {

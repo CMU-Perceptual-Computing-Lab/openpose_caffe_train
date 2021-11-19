@@ -45,7 +45,11 @@ It depends on your Ubuntu version, but it should look similar to the following:
 mkdir build
 cd build
 cmake-gui ..
-# Configure CMake-GUI from its UI (e.g., with or without Python, etc)
+# Configure CMake-GUI from its UI. E.g.,
+# - If you do not need Python (or if you are getting Pybind errors), disable BUILD_python & BUILD_python_layer
+# - If you get an infinite CMake loop (ie error saying "[...]Configure will be re-run [...] CMAKE_CXX_COMPILER= /usr/bin/c++", click "Advanced", and replace "/usr/bin/c++" with "/usr/bin/g++"
+# After configuring CMake, press "Configure" and (if/after all configuration errors are gone) "Generate"
+# Finally, close CMake and compile the library with:
 make -j`nproc`
 ```
 

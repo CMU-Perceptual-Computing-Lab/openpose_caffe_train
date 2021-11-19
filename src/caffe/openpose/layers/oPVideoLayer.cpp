@@ -10,6 +10,7 @@
 #include "caffe/util/benchmark.hpp"
 // OpenPose: added
 #include <chrono>
+#include <numeric> // std::accumulate
 #include <stdexcept>
 #include "caffe/util/io.hpp" // DecodeDatum, DecodeDatumNative
 #include "caffe/openpose/getLine.hpp"
