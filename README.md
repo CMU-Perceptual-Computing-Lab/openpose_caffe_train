@@ -21,7 +21,7 @@
 ## Experimental Disclaimer
 While [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) is highly tested and stable, this training repository is highly experimental and not production ready. Use at your own risk.
 
-This repository was used and tested on Ubuntu 16 with CUDA 8 and Ubuntu 20 with WSL2 (Windows 11). It should work with other versions of Ubuntu and up to CUDA 10, but it might require modifications.
+This repository was used and tested on Ubuntu 16 with CUDA 8, and it compiles in Ubuntu 20 with WSL2 (Windows 11). It should work with other versions of Ubuntu and up to CUDA 10, but it might require modifications.
 
 
 
