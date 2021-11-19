@@ -113,21 +113,8 @@ add_subdirectory(docs)
 add_custom_target(lint COMMAND ${CMAKE_COMMAND} -P ${PROJECT_SOURCE_DIR}/cmake/lint.cmake)
 
 ### PYTHON
-if (BUILD_PYTHON)
-  if (WIN32)
-    execute_process(COMMAND cmd /c cd ${CMAKE_SOURCE_DIR} & git submodule update --init op/pybind11/)
-    add_subdirectory(op/pybind11)
-    add_subdirectory(python)
-  elseif (UNIX OR APPLE)
-    if (Caffe_FOUND)
-      execute_process(COMMAND git submodule update --init ${CMAKE_SOURCE_DIR}/op/pybind11/)
-      # execute_process(COMMAND git submodule update --init --recursive --remote) # This would initialize them all
-      add_subdirectory(op/pybind11)
-      add_subdirectory(python)
-    endif (Caffe_FOUND)
-  else (WIN32)
-    message(FATAL_ERROR "Unknown OS.")
-  endif (WIN32)
+if (BUILD_python)
+  execute_process(COMMAND git submodule update --init --recursive --remote)
 endif (BUILD_PYTHON)
 
 # ---[ pytest target
