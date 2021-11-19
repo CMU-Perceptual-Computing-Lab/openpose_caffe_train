@@ -21,7 +21,7 @@
 ## Experimental Disclaimer
 While [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) is highly tested and stable, this training repository is highly experimental and not production ready. Use at your own risk.
 
-This repository was used and tested on Ubuntu 16 with CUDA 8. It should still work with newer versions of Ubuntu and up to CUDA 10, but it might require modifications.
+This repository was used and tested on Ubuntu 16 with CUDA 8 and Ubuntu 20 with WSL2 (Windows 11). It should work with other versions of Ubuntu and up to CUDA 10, but it might require modifications.
 
 
 
@@ -46,6 +46,7 @@ mkdir build
 cd build
 cmake-gui ..
 # Configure CMake-GUI from its UI. E.g.,
+# - If you are using OpenCV < 4, set USE_OPENCV_LESS_THAN_4 accordingly!
 # - If you do not need Python (or if you are getting Pybind errors), disable BUILD_python & BUILD_python_layer
 # - If you get an infinite CMake loop (ie error saying "[...]Configure will be re-run [...] CMAKE_CXX_COMPILER= /usr/bin/c++", click "Advanced", and replace "/usr/bin/c++" with "/usr/bin/g++"
 # After configuring CMake, press "Configure" and (if/after all configuration errors are gone) "Generate"
