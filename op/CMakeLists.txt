@@ -7,8 +7,10 @@
 #    __init__.py
 #    openpose_python.cpp)
 
-add_subdirectory(pybind11)
-pybind11_add_module(opcaffe opcaffe.cpp test.py)
-target_link_libraries(opcaffe PRIVATE pybind11::module ${Caffe_LINK})
-SET_TARGET_PROPERTIES(opcaffe PROPERTIES PREFIX "")
-configure_file(test.py test.py)
+if(BUILD_python)
+	add_subdirectory(pybind11)
+	pybind11_add_module(opcaffe opcaffe.cpp test.py)
+	target_link_libraries(opcaffe PRIVATE pybind11::module ${Caffe_LINK})
+	SET_TARGET_PROPERTIES(opcaffe PROPERTIES PREFIX "")
+	configure_file(test.py test.py)
+endif(BUILD_python)
